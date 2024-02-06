@@ -50,36 +50,22 @@ const tiltSector = (grid: string[][], sectorIndex: number, direction: Direction)
 
 
 export const tiltPlatform = (grid: string[][], direction: Direction = 'north') => {
-    return new Promise<string[][]>((resolve) => {
-        const isVertical = getIsVertical(direction)
-        const loops = isVertical ? grid.length : grid[0].length;
-        for (let index = 0; index < loops; index++) {
-            tiltSector(grid, index, direction);
-        }
-        resolve(grid)
-    })
+    const isVertical = getIsVertical(direction)
+    const loops = isVertical ? grid.length : grid[0].length;
+    for (let index = 0; index < loops; index++) {
+        tiltSector(grid, index, direction);
+    }
+
+    return grid
 }
 
 const directions = ['north', 'west', 'south', 'east'] as const;
 
 type Direction = typeof directions[number];
 
-let workers = [];
-const initWorker = (threads: number) => {
-    const workerURL = new URL("worker.ts", import.meta.url).href;
-    const worker = new Worker(workerURL);
-
-    worker.postMessage("hello");
-    worker.onmessage = event => {
-        console.log('onmesonmesonmesonmesonmes', event.data);
-    };
-    return worker
-}
-
-
 export const gridToPlatformString = (grid: string[][]): string => grid.map(row => row.join('')).join('\n');
 
-export const doCycles = async (input: string, cycles: number): Promise<string> => {
+export const doCycles = (input: string, cycles: number): string => {
     const grid = getGrid(input);
     const progressBar = new cliProgress.SingleBar({
         format: 'progress [{bar}] {percentage}% | ETA: {eta_formatted} | {value}/{total}'
@@ -90,7 +76,7 @@ export const doCycles = async (input: string, cycles: number): Promise<string> =
 
     for (let index = 0; index < cycles; index++) {
         for (const direction of directions) {
-            await tiltPlatform(grid, direction);
+            tiltPlatform(grid, direction);
         }
 
         if ((index % 100 === 0) && (Date.now() - now > 100)) {
@@ -210,6 +196,6 @@ O###...O#.O......##O#..O#.........OO...O#O#O..#O#O..#O#O.#..#OO.#...##..##..#.#.
 export const numberOfCycles = 1000000000
 
 if (Bun.env.NODE_ENV !== 'test') {
-    console.log('Part 1 result:', getNorthBeamsLoad(gridToPlatformString(await tiltPlatform(getGrid(inputStr)))))
-    console.log('Part 2 result:', getNorthBeamsLoad(await doCycles(inputStr, numberOfCycles)))
+    console.log('Part 1 result:', getNorthBeamsLoad(gridToPlatformString(tiltPlatform(getGrid(inputStr)))))
+    console.log('Part 2 result:', getNorthBeamsLoad(doCycles(inputStr, numberOfCycles)))
 }
