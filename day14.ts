@@ -63,7 +63,7 @@ const directions = ['north', 'west', 'south', 'east'] as const;
 
 type Direction = typeof directions[number];
 
-export const gridToPlatformString = (grid: string[][]): string => grid.map(row => row.join('')).join('\n');
+export const gridToStr = (grid: string[][]): string => grid.map(row => row.join('')).join('\n');
 
 export const doCycles = (input: string, cycles: number): string => {
     const grid = getGrid(input);
@@ -74,10 +74,27 @@ export const doCycles = (input: string, cycles: number): string => {
 
     let now = Date.now();
 
+
+    let seenStates = new Map<string, number>();
+
     for (let index = 0; index < cycles; index++) {
         for (const direction of directions) {
             tiltPlatform(grid, direction);
         }
+
+        const str = gridToStr(grid);
+        if (seenStates.has(str)) {
+            const firstSeenIndex = seenStates.get(str)!;
+            const cycleLength = index - firstSeenIndex;
+            const remainingCycles = cycles - (index + 1);
+            const remainingCyclesMod = remainingCycles % cycleLength;
+            const targetIndex = remainingCyclesMod + firstSeenIndex;
+
+            progressBar.update(targetIndex);
+            progressBar.stop();
+
+            return Array.from(seenStates.keys())[targetIndex];
+        } else seenStates.set(str, index);
 
         if ((index % 100 === 0) && (Date.now() - now > 100)) {
             progressBar.update(index);
@@ -87,7 +104,7 @@ export const doCycles = (input: string, cycles: number): string => {
     progressBar.update(cycles)
     progressBar.stop();
 
-    return gridToPlatformString(grid);
+    return gridToStr(grid);
 }
 
 const inputStr = `
@@ -196,6 +213,6 @@ O###...O#.O......##O#..O#.........OO...O#O#O..#O#O..#O#O.#..#OO.#...##..##..#.#.
 export const numberOfCycles = 1000000000
 
 if (Bun.env.NODE_ENV !== 'test') {
-    console.log('Part 1 result:', getNorthBeamsLoad(gridToPlatformString(tiltPlatform(getGrid(inputStr)))))
+    console.log('Part 1 result:', getNorthBeamsLoad(gridToStr(tiltPlatform(getGrid(inputStr)))))
     console.log('Part 2 result:', getNorthBeamsLoad(doCycles(inputStr, numberOfCycles)))
 }

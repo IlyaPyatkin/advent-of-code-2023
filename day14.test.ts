@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { doCycles, getNorthBeamsLoad, getGrid, numberOfCycles, tiltPlatform, gridToPlatformString } from "./day14.ts";
+import { doCycles, getNorthBeamsLoad, getGrid, numberOfCycles, tiltPlatform, gridToStr } from "./day14.ts";
 
 const test1State =
 `O....#....
@@ -61,7 +61,7 @@ const after3CyclesResult =
 
 
 test("tilting works correctly", () => {
-    expect(gridToPlatformString(tiltPlatform(getGrid(test1State)))).toBe(test1StateAfterTilt);
+    expect(gridToStr(tiltPlatform(getGrid(test1State)))).toBe(test1StateAfterTilt);
 });
 test("calculating north beams load is correct", () => {
     expect(getNorthBeamsLoad(test1StateAfterTilt)).toBe(136);
