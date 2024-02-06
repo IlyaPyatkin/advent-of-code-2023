@@ -113,7 +113,7 @@ fn tilt_sector(grid: &mut CharGrid, sector_index: usize, direction: &Direction) 
     }
 }
 
-fn tilt_platform(grid: &mut CharGrid, direction: &Direction) {
+fn tilt_platform(grid: &mut CharGrid, direction: Direction) {
     let loops = if is_vertical(&direction) { grid.cols } else { grid.rows };
     for index in 0..loops {
         tilt_sector(grid, index, &direction);
@@ -130,7 +130,7 @@ fn grid_to_platform_string(grid: &Vec<Vec<char>>) -> String {
         .join("\n")
 }
 
-fn do_cycles(input: &str, cycles: usize) -> String {
+fn do_cycles(input: &str, cycles: u64) -> String {
     let mut grid = CharGrid::from_2d_vec(get_grid(input)); // Assuming `get_grid` is implemented as shown earlier
 
     let progress_bar = ProgressBar::new(cycles as u64);
@@ -141,8 +141,8 @@ fn do_cycles(input: &str, cycles: usize) -> String {
 
     progress_bar.set_message("Processing...");
 
-    for _index in 0..cycles as u64 {
-        for direction in &[Direction::North, Direction::West, Direction::South, Direction::East] {
+    for _index in 0..cycles {
+        for direction in [Direction::North, Direction::West, Direction::South, Direction::East] {
             tilt_platform(&mut grid, direction); // Assuming `tilt_platform` is adapted for Rust
         }
 
@@ -151,7 +151,7 @@ fn do_cycles(input: &str, cycles: usize) -> String {
             progress_bar.set_position(_index);
         }
     }
-    progress_bar.set_position(cycles as u64);
+    progress_bar.set_position(cycles);
     progress_bar.finish_with_message("Done");
 
     grid_to_platform_string(&grid.to_2d_vec())

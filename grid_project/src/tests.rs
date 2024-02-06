@@ -56,13 +56,13 @@ O..#.OO...
 .......OOO
 #...O###.O
 #.OOO#...O";
-    const NUMBER_OF_CYCLES: usize = 1000000000; // Example number of cycles
+    const NUMBER_OF_CYCLES: u64 = 1000000000; // Example number of cycles
 
     #[test]
     fn tilting_works_correctly() {
         let mut grid = CharGrid::from_2d_vec(get_grid(TEST1_STATE));
         let direction = Direction::North;
-        tilt_platform(&mut grid, &direction);
+        tilt_platform(&mut grid, direction);
         assert_eq!(grid_to_platform_string(&grid.to_2d_vec()), TEST1_STATE_AFTER_TILT.trim());
     }
 
