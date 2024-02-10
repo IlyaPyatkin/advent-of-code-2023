@@ -1,110 +1,103 @@
-import cliProgress from 'cli-progress'
+const CellType = {
+  Empty: '.',
+  RoundRock: 'O',
+  SquareRock: '#',
+} as const
+type Cell = (typeof CellType)[keyof typeof CellType]
 
-export const getGrid = (input: string): string[][] =>
-    input
-        .trim()
-        .split('\n')
-        .map(row => row.split(''))
+const cells = Object.values(CellType)
+type Grid = Cell[][]
+const isCell = (char: string): char is Cell => cells.includes(char as Cell)
 
-const isRoundRock = (char: string): boolean => char === 'O'
+export const getGrid = (input: string): Grid =>
+  input
+    .trim()
+    .split('\n')
+    .map((row) => row.split('').map((char) => (isCell(char) ? char : '.')))
+
+const isRoundRock = (char: Cell): boolean => char === 'O'
 
 export const getNorthBeamsLoad = (input: string): number => {
-    const grid = getGrid(input)
-    return grid
-        .reduce(
-            (acc, rowString, rowIndex) =>
-                acc + rowString
-                    .filter(isRoundRock).length * (grid.length - rowIndex),
-            0);
+  const grid = getGrid(input)
+  return grid.reduce(
+    (acc, rowString, rowIndex) => acc + rowString.filter(isRoundRock).length * (grid.length - rowIndex),
+    0,
+  )
 }
 
 const getIsVertical = (direction: Direction): boolean => direction === 'north' || direction === 'south'
 
-const tiltSector = (grid: string[][], sectorIndex: number, direction: Direction) => {
-    let lastEmptyIndex = undefined;
-    const isVertical = getIsVertical(direction)
-    const loops = isVertical ? grid[0].length : grid.length;
-    const isReversed = direction === 'south' || direction === 'east';
-    for (let index = isReversed ? loops - 1 : 0; isReversed ? index >= 0 :  index < loops; isReversed ? index-- : index++) {
-        const currentIndex = isVertical ? index : sectorIndex
-        const currentSectorIndex = isVertical ? sectorIndex : index
-        switch (grid[currentIndex][currentSectorIndex]) {
-            case '.':
-                if (lastEmptyIndex === undefined) {
-                    lastEmptyIndex = index;
-                }
-                break;
-            case '#':
-                lastEmptyIndex = undefined;
-                break;
-            case 'O':
-                if (lastEmptyIndex !== undefined) {
-                    grid[isVertical ? lastEmptyIndex : sectorIndex][isVertical ? sectorIndex : lastEmptyIndex] = 'O';
-                    grid[currentIndex][currentSectorIndex] = '.';
-                    lastEmptyIndex += isReversed ? -1 : 1;
-                }
-                break;
+const tiltSector = (grid: Grid, sectorIndex: number, direction: Direction) => {
+  let lastEmptyIndex = undefined
+  const isVertical = getIsVertical(direction)
+  const loops = isVertical ? grid[0].length : grid.length
+  const isReversed = direction === 'south' || direction === 'east'
+  for (
+    let index = isReversed ? loops - 1 : 0;
+    isReversed ? index >= 0 : index < loops;
+    isReversed ? index-- : index++
+  ) {
+    const currentIndex = isVertical ? index : sectorIndex
+    const currentSectorIndex = isVertical ? sectorIndex : index
+    switch (grid[currentIndex][currentSectorIndex]) {
+      case '.':
+        if (lastEmptyIndex === undefined) {
+          lastEmptyIndex = index
         }
+        break
+      case '#':
+        lastEmptyIndex = undefined
+        break
+      case 'O':
+        if (lastEmptyIndex !== undefined) {
+          grid[isVertical ? lastEmptyIndex : sectorIndex][isVertical ? sectorIndex : lastEmptyIndex] = 'O'
+          grid[currentIndex][currentSectorIndex] = '.'
+          lastEmptyIndex += isReversed ? -1 : 1
+        }
+        break
     }
+  }
 }
 
+export const tiltPlatform = (grid: Grid, direction: Direction = 'north') => {
+  const isVertical = getIsVertical(direction)
+  const loops = isVertical ? grid.length : grid[0].length
+  for (let index = 0; index < loops; index++) {
+    tiltSector(grid, index, direction)
+  }
 
-export const tiltPlatform = (grid: string[][], direction: Direction = 'north') => {
-    const isVertical = getIsVertical(direction)
-    const loops = isVertical ? grid.length : grid[0].length;
-    for (let index = 0; index < loops; index++) {
-        tiltSector(grid, index, direction);
-    }
-
-    return grid
+  return grid
 }
 
-const directions = ['north', 'west', 'south', 'east'] as const;
+const directions = ['north', 'west', 'south', 'east'] as const
 
-type Direction = typeof directions[number];
+type Direction = (typeof directions)[number]
 
-export const gridToStr = (grid: string[][]): string => grid.map(row => row.join('')).join('\n');
+export const gridToStr = (grid: Grid): string => grid.map((row) => row.join('')).join('\n')
 
 export const doCycles = (input: string, cycles: number): string => {
-    const grid = getGrid(input);
-    const progressBar = new cliProgress.SingleBar({
-        format: 'progress [{bar}] {percentage}% | ETA: {eta_formatted} | {value}/{total}'
-    });
-    progressBar.start(cycles, 0);
+  const grid = getGrid(input)
+  const seenStates = new Map<string, number>()
 
-    let now = Date.now();
-
-
-    let seenStates = new Map<string, number>();
-
-    for (let index = 0; index < cycles; index++) {
-        for (const direction of directions) {
-            tiltPlatform(grid, direction);
-        }
-
-        const str = gridToStr(grid);
-        if (seenStates.has(str)) {
-            const firstSeenIndex = seenStates.get(str)!;
-            const cycleLength = index - firstSeenIndex;
-            const remainingCycles = cycles - (index + 1);
-            const remainingCyclesMod = remainingCycles % cycleLength;
-            const targetIndex = remainingCyclesMod + firstSeenIndex;
-
-            progressBar.update(targetIndex);
-            progressBar.stop();
-
-            return Array.from(seenStates.keys())[targetIndex];
-        } else seenStates.set(str, index);
-
-        if ((index % 100 === 0) && (Date.now() - now > 100)) {
-            progressBar.update(index);
-            now = Date.now();
-        }
+  for (let index = 0; index < cycles; index++) {
+    for (const direction of directions) {
+      tiltPlatform(grid, direction)
     }
-    progressBar.update(cycles)
-    progressBar.stop();
 
-    return gridToStr(grid);
+    const str = gridToStr(grid)
+    if (seenStates.has(str)) {
+      const firstSeenIndex = seenStates.get(str)!
+
+      const cycleLength = index - firstSeenIndex
+      const remainingCycles = cycles - (index + 1)
+      const remainingCyclesMod = remainingCycles % cycleLength
+      const targetIndex = remainingCyclesMod + firstSeenIndex
+
+      return Array.from(seenStates.keys())[targetIndex]
+    } else seenStates.set(str, index)
+  }
+
+  return gridToStr(grid)
 }
 
 const inputStr = `
@@ -213,6 +206,6 @@ O###...O#.O......##O#..O#.........OO...O#O#O..#O#O..#O#O.#..#OO.#...##..##..#.#.
 export const numberOfCycles = 1000000000
 
 if (Bun.env.NODE_ENV !== 'test') {
-    console.log('Part 1 result:', getNorthBeamsLoad(gridToStr(tiltPlatform(getGrid(inputStr)))))
-    console.log('Part 2 result:', getNorthBeamsLoad(doCycles(inputStr, numberOfCycles)))
+  console.log('Part 1 result:', getNorthBeamsLoad(gridToStr(tiltPlatform(getGrid(inputStr)))))
+  console.log('Part 2 result:', getNorthBeamsLoad(doCycles(inputStr, numberOfCycles)))
 }
