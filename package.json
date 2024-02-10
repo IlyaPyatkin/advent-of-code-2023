@@ -1,6 +1,5 @@
 {
   "name": "adventofcode-2023",
-  "module": "index.ts",
   "type": "module",
   "devDependencies": {
     "@types/bun": "latest"
