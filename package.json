@@ -1,6 +1,11 @@
 {
   "name": "adventofcode-2023",
   "type": "module",
+  "scripts": {
+    "day14": "bun run './src/day14.ts'",
+    "day14-rust": "cargo run -r day14",
+    "day14-test-rust": "cargo test -r --bin day14"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
