@@ -9,8 +9,8 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@types/cli-progress": "^3.11.5",
-    "cli-progress": "^3.12.0",
-    "prettier": "^3.2.4"
+    "eslint": "^8.56.0",
+    "eslint-config-universe": "^12.0.0",
+    "prettier": "^3.2.5"
   }
 }
