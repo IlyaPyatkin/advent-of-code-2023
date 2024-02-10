@@ -1,3 +1,5 @@
+// https://adventofcode.com/2023/day/14
+
 struct CharGrid {
     rows: usize,
     cols: usize,
@@ -268,7 +270,6 @@ O###...O#.O......##O#..O#.........OO...O#O#O..#O#O..#O#O.#..#OO.#...##..##..#.#.
 mod tests {
     use crate::{CharGrid, Direction, do_cycles, get_grid, get_north_beams_load, grid_to_platform_string, tilt_platform};
 
-    // Example test values
     const TEST1_STATE: &str = "
 O....#....
 O.OO#....#

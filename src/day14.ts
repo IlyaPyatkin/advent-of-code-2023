@@ -1,3 +1,5 @@
+// https://adventofcode.com/2023/day/14
+
 const CellType = {
   Empty: '.',
   RoundRock: 'O',

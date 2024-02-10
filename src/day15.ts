@@ -1,3 +1,5 @@
+// https://adventofcode.com/2023/day/15
+
 export const hash = (input: string): number => {
   let current = 0
   for (let index = 0; index < input.length; index++) {

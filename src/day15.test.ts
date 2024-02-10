@@ -1,3 +1,5 @@
+// https://adventofcode.com/2023/day/15
+
 import { expect, test } from 'bun:test'
 
 import { getTotalFocusingPower, hash, parseInitSequence, runSequence, stringifyBoxes } from './day15.ts'
