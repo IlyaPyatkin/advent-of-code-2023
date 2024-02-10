@@ -5,7 +5,6 @@ struct CharGrid {
 }
 
 impl CharGrid {
-    // Constructor that converts Vec<Vec<char>> to CharGrid
     fn from_2d_vec(input: Vec<Vec<char>>) -> Self {
         let rows = input.len();
         let cols = if rows > 0 { input[0].len() } else { 0 };
@@ -115,7 +114,6 @@ fn tilt_platform(grid: &mut CharGrid, direction: Direction) {
     for index in 0..loops {
         tilt_sector(grid, index, &direction);
     }
-    // In Rust, you would typically return the modified grid directly, or modify it in place as we've done here.
 }
 
 use indicatif::{ProgressBar, ProgressStyle};
@@ -128,7 +126,7 @@ fn grid_to_platform_string(grid: &Vec<Vec<char>>) -> String {
 }
 
 fn do_cycles(input: &str, cycles: u64) -> String {
-    let mut grid = CharGrid::from_2d_vec(get_grid(input)); // Assuming `get_grid` is implemented as shown earlier
+    let mut grid = CharGrid::from_2d_vec(get_grid(input));
 
     let progress_bar = ProgressBar::new(cycles as u64);
 
@@ -140,7 +138,7 @@ fn do_cycles(input: &str, cycles: u64) -> String {
 
     for _index in 0..cycles {
         for direction in [Direction::North, Direction::West, Direction::South, Direction::East] {
-            tilt_platform(&mut grid, direction); // Assuming `tilt_platform` is adapted for Rust
+            tilt_platform(&mut grid, direction);
         }
 
         if _index % 1000 == 0 {
