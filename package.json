@@ -3,6 +3,7 @@
   "type": "module",
   "scripts": {
     "day14": "bun run './src/day14.ts'",
+    "day14-test": "bun test './src/day14.test.ts'",
     "day14-rust": "cargo run -r day14",
     "day14-test-rust": "cargo test -r --bin day14"
   },
