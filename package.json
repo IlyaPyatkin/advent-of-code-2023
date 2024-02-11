@@ -2,6 +2,8 @@
   "name": "adventofcode-2023",
   "type": "module",
   "scripts": {
+    "day13": "bun run './src/day13.ts'",
+    "day13-test": "bun test './src/day13.test.ts'",
     "day14": "bun run './src/day14.ts'",
     "day14-test": "bun test './src/day14.test.ts'",
     "day14-rust": "cargo run -r day14",
