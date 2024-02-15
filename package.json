@@ -1,5 +1,5 @@
 {
-  "name": "adventofcode-2023",
+  "name": "advent-of-code-2023",
   "type": "module",
   "scripts": {
     "day13": "bun run './src/day13.ts'",
